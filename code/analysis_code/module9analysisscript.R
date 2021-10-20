@@ -10,7 +10,7 @@ mydata <- readRDS('data/processed_data/processeddata.rds')
 
 # Data Splitting------------------------------------------------------
 #set seed to fix random numbers 
-set.seed(123)
+set.seed(124)
 
 #put 3/4 of data into training set 
 data_split <- initial_split(mydata, prop = 3/4)
@@ -53,15 +53,15 @@ nausea_aug <- augment(nausea_fit, test_data)
 
 #view the data 
 nausea_aug %>% 
-  select(Nausea, .pred_class, .pred_No)
+  select(Nausea, .pred_class, .pred_Yes)
 
-#create ROC curve
-nausea_aug %>% roc_curve(truth = Nausea, .pred_No) %>% 
+#create ROC curve; setting event level to 'second' because event levels will be alphebetized 
+nausea_aug %>% roc_curve(truth = Nausea, .pred_Yes, event_level = "second") %>% 
   autoplot()
 
 #calculate AUC 
 nausea_aug %>% 
-  roc_auc(truth = Nausea, .pred_No)
+  roc_auc(truth = Nausea, .pred_Yes, event_level = 'second')
 
 # Alternative Model--------------------------------------------------
 
@@ -102,10 +102,10 @@ nausea_run_aug %>%
   select(Nausea, .pred_class, .pred_Yes)
 
 #create ROC curve
-nausea_run_aug %>% roc_curve(truth = Nausea, .pred_Yes) %>% 
+nausea_run_aug %>% roc_curve(truth = Nausea, .pred_Yes, event_level = "second") %>% 
   autoplot()
 
 #calculate AUC 
 nausea_run_aug %>% 
-  roc_auc(truth = Nausea, .pred_Yes)
+  roc_auc(truth = Nausea, .pred_Yes, event_level = 'second')
 
