@@ -109,3 +109,116 @@ nausea_run_aug %>% roc_curve(truth = Nausea, .pred_Yes, event_level = "second") 
 nausea_run_aug %>% 
   roc_auc(truth = Nausea, .pred_Yes, event_level = 'second')
 
+######################################
+### Tzu-Chun's contribution starts ###
+######################################
+
+# Linear model with all predictors 
+# Outcome: body temperature
+
+# create recipe fitting body temperature to all predictors
+bodytemp_rec<- 
+  recipe(BodyTemp ~ ., data = train_data)
+
+# fit a linear model 
+lm_mod <- 
+  linear_reg() %>% set_engine("lm")
+
+# create model Workflow
+bodytemp_workflow <-
+  workflow() %>% 
+  add_model(lm_mod) %>% 
+  add_recipe(bodytemp_rec)
+
+bodytemp_workflow
+
+# Preparing the recipe and train the model from the resulting predictors
+bodytemp_fit<-
+  bodytemp_workflow %>%
+  fit(data = train_data)
+
+# Extracting and tidying the model coefficients
+bodytemp_fit %>%
+  extract_fit_parsnip() %>% 
+  tidy()
+
+### Model 1 Evaluation
+# we will use the RMSE as a metric to assess model performance
+
+# Use a trained workflow to predict section using test data 
+predict(bodytemp_fit, test_data)
+
+# include predicted probabilities
+bodytemp_aug <- augment(bodytemp_fit, test_data)
+
+# estimate RMSE for test data
+bodytemp_aug %>% 
+  rmse(truth = BodyTemp, .pred)
+
+# evaluate prediction in train data
+predict(bodytemp_fit, train_data) 
+
+# include predicted probabilities
+bodytemp_train_aug <- 
+  augment(bodytemp_fit, train_data) 
+
+# estimate RMSE for train data
+bodytemp_train_aug %>% 
+  rmse(truth = BodyTemp, .pred) 
+
+# The linear model with all predictors shows similar model fit for train (RMSE=1.20) and test (RMSE=1.17) data. 
+
+# Alternative linear model with main predictor
+# main predictor: runny nose
+# Outcome: body temperature
+
+# create recipe fitting body temperature to all predictors
+bodytemp_rnose_rec<- 
+  recipe(BodyTemp ~ RunnyNose, data = train_data)
+
+# fit a linear model 
+lm_mod <- 
+  linear_reg() %>% set_engine("lm")
+
+# create model Workflow
+bodytemp_rnose_workflow <-
+  workflow() %>% 
+  add_model(lm_mod) %>% 
+  add_recipe(bodytemp_rnose_rec)
+
+bodytemp_rnose_workflow
+
+# Preparing the recipe and train the model from the resulting predictors
+bodytemp_rnose_fit<-
+  bodytemp_rnose_workflow %>%
+  fit(data = train_data)
+
+# Extracting and tidying the model coefficients
+bodytemp_rnose_fit %>%
+  extract_fit_parsnip() %>% 
+  tidy()
+
+### Alternative model Evaluation
+
+# Use a trained workflow to predict section using test data 
+predict(bodytemp_rnose_fit, test_data)
+
+# include predicted probabilities
+bodytemp_rnose_aug <- augment(bodytemp_rnose_fit, test_data)
+
+# estimate RMSE for test data
+bodytemp_rnose_aug %>% 
+  rmse(truth = BodyTemp, .pred)
+
+# evaluate prediction in train data
+predict(bodytemp_rnose_fit, train_data) 
+
+# include predicted probabilities
+bodytemp_train_aug <- 
+  augment(bodytemp_rnose_fit, train_data) 
+
+# estimate RMSE for train data
+bodytemp_train_aug %>% 
+  rmse(truth = BodyTemp, .pred) 
+
+# The model with only the runny nose had the same RMSE as the model with all predictors.
