@@ -48,19 +48,32 @@ nausea_fit %>%
 #use trained workflow to predict with unseen test data 
 predict(nausea_fit, test_data)
 
-#predict probabilities for each case 
-nausea_aug <- augment(nausea_fit, test_data)
-
+#predict probabilities for each case in test and train data 
+#test
+nausea_aug_test <- augment(nausea_fit, test_data)
 #view the data 
-nausea_aug %>% 
+nausea_aug_test %>% 
   select(Nausea, .pred_class, .pred_Yes)
 
-#create ROC curve; setting event level to 'second' because event levels will be alphebetized 
-nausea_aug %>% roc_curve(truth = Nausea, .pred_Yes, event_level = "second") %>% 
-  autoplot()
+#train
+nausea_aug_train <- augment(nausea_fit, train_data)
+#view the data 
+nausea_aug_train %>% 
+  select(Nausea, .pred_class, .pred_Yes)
 
+#create ROC curve; setting event level to 'second' because event levels will be alphabetized
+#test
+nausea_aug_test %>% roc_curve(truth = Nausea, .pred_Yes, event_level = "second") %>% 
+  autoplot()
 #calculate AUC 
-nausea_aug %>% 
+nausea_aug_test %>% 
+  roc_auc(truth = Nausea, .pred_Yes, event_level = 'second')
+
+#train
+nausea_aug_train %>% roc_curve(truth = Nausea, .pred_Yes, event_level = 'second') %>% 
+  autoplot()
+#AUC 
+nausea_aug_train %>% 
   roc_auc(truth = Nausea, .pred_Yes, event_level = 'second')
 
 # Alternative Model--------------------------------------------------
@@ -95,19 +108,33 @@ nausea_run_fit %>%
 predict(nausea_run_fit, test_data)
 
 #predict probabilities for each case 
-nausea_run_aug <- augment(nausea_run_fit, test_data)
-
+#test
+nausea_run_aug_test <- augment(nausea_run_fit, test_data)
 #view the data 
-nausea_run_aug %>% 
+nausea_run_aug_test %>% 
+  select(Nausea, .pred_class, .pred_Yes)
+
+#train
+nausea_run_aug_train <- augment(nausea_run_fit, train_data)
+#view the data 
+nausea_run_aug_train %>% 
   select(Nausea, .pred_class, .pred_Yes)
 
 #create ROC curve
-nausea_run_aug %>% roc_curve(truth = Nausea, .pred_Yes, event_level = "second") %>% 
+#test
+nausea_run_aug_test %>% roc_curve(truth = Nausea, .pred_Yes, event_level = "second") %>% 
   autoplot()
-
 #calculate AUC 
-nausea_run_aug %>% 
+nausea_run_aug_test %>% 
   roc_auc(truth = Nausea, .pred_Yes, event_level = 'second')
+
+#train
+#ROC curve 
+nausea_run_aug_train %>% roc_curve(truth = Nausea, .pred_Yes, event_level = 'second') %>% 
+  autoplot()
+#AUC 
+nausea_run_aug_train %>% 
+  roc_auc(truth= Nausea, .pred_Yes, event_level = 'second')
 
 ######################################
 ### Tzu-Chun's contribution starts ###
